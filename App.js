@@ -1,9 +1,13 @@
-import React from 'react';
+import React,{useEffect, useState}  from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 import Picker from './src/components/Picker';
+import api from './src/services/api';
 
 export default function App(){
+ 
+
+
   return(
     <View style={styles.container}>
       
@@ -54,7 +58,7 @@ const styles = StyleSheet.create({
     paddingTop: 9,
     borderTopLeftRadius: 9,
     borderTopRightRadius: 9,
-    marginBottom: 3
+    marginBottom: 2
   },
   titulo:{
     fontSize: 15,
