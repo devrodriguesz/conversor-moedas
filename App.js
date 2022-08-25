@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Keyboard } from 'react-native';
 
 import Picker from './src/components/Picker';
 import api from './src/services/api';
@@ -10,6 +10,11 @@ export default function App() {
 
   const [moedaSelecionada, setMoedaSelecionada] = useState(null);
   const [moedaBValor, setMoedaBValor] = useState(0);
+
+  const [valorMoeda, setValorMoeda] = useState(null);
+  const [valorConvertido, setValorConvertido] = useState(0);
+
+
 
   useEffect(() => {
     async function loadMoedas() {
@@ -33,6 +38,31 @@ export default function App() {
   }, []);
 
 
+
+  async function converter(){
+    if (moedaSelecionada === null || moedaBValor === 0){
+      alert('Por favor selecione uma moeda.');
+      Keyboard.dismiss();
+      return;
+    }if (moedaBValor == ''){
+      alert('Por favor digite um valor para conversão.')
+      Keyboard.dismiss();
+      return;
+    }
+
+    // Devolve a moeda selecionada convertida pra Reais
+    const response = await api.get(`all/${moedaSelecionada}-BRL`);
+    //console.log(response.data[moedaSelecionada].ask);
+    let resultado = (response.data[moedaSelecionada].ask * parseFloat(moedaBValor))
+
+    setValorConvertido(`R$ ${resultado.toFixed(2)} `);
+    setValorMoeda(moedaBValor);
+
+    //fecha teclado caso esteja aberto.
+    Keyboard.dismiss();
+  }
+
+
   if (loading) {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
@@ -49,7 +79,7 @@ export default function App() {
         </View>
 
         <View style={styles.areaValor}>
-          <Text style={styles.titulo}>Digite um valor para converter em (R$)</Text>
+          <Text style={styles.titulo}>Digite um valor em {moedaSelecionada} : </Text>
           <TextInput
             placeholder='Ex: 150'
             style={styles.input}
@@ -58,21 +88,23 @@ export default function App() {
           />
         </View>
 
-        <TouchableOpacity style={styles.botaoArea}>
+        <TouchableOpacity style={styles.botaoArea} onPress={ converter }>
           <Text style={styles.botaoTexto}>Converter</Text>
         </TouchableOpacity>
 
-        <View style={styles.areaResultado}>
+        { valorConvertido !==0 && (
+          <View style={styles.areaResultado}>
           <Text style={styles.valorConvertido}>
-            3 USD
+            {valorMoeda} {moedaSelecionada}
           </Text>
           <Text style={[styles.valorConvertido, { fontSize: 18, margin: 10 }]}>
             Corresponde a
           </Text>
           <Text style={styles.valorConvertido}>
-            19,90
+            {valorConvertido}
           </Text>
         </View>
+        )}
 
       </View>
     )
